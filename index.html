@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026 행정안전부 안전점검 보고서일관성 검증 시스템</title>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-light: #3b82f6;
+      --primary-dark: #1e293b;
+      --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --danger-color: #ef4444;
+      --danger-bg: #fef2f2;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 25px rgba(0,0,0,0.12);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      line-height: 1.6;
+      padding-bottom: 60px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Header */
+    .app-header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+      color: #ffffff;
+      padding: 40px 0 30px;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 30px;
+      border-bottom: 4px solid #3b82f6;
+    }
+
+    .header-content {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .badge-tag {
+      align-self: flex-start;
+      background: rgba(59, 130, 246, 0.25);
+      border: 1px solid rgba(147, 197, 253, 0.4);
+      color: #93c5fd;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+    }
+
+    .app-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #ffffff;
+    }
+
+    .app-subtitle {
+      color: #94a3b8;
+      font-size: 1rem;
+    }
+
+    /* Search Section */
+    .search-section {
+      background: var(--card-bg);
+      padding: 24px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
+      margin-bottom: 32px;
+    }
+
+    .search-bar-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .input-container {
+      position: relative;
+      flex: 1;
+      min-width: 280px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 40px 12px 42px;
+      font-size: 1rem;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: all 0.2s ease;
+      background: #f8fafc;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary-light);
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    .clear-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #e2e8f0;
+      border: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      font-size: 0.8rem;
+      color: #475569;
+      line-height: 22px;
+      text-align: center;
+    }
+
+    .clear-btn:hover {
+      background: #cbd5e1;
+    }
+
+    /* 요구사항 2: "결과 N건" 표기 스타일 */
+    .result-badge {
+      background: #e0f2fe;
+      color: #0369a1;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      border: 1px solid #bae6fd;
+      white-space: nowrap;
+      box-shadow: 0 2px 4px rgba(3, 105, 161, 0.08);
+    }
+
+    /* Cards Section */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: #cbd5e1;
+    }
+
+    .card-header {
+      padding: 20px 20px 12px;
+      border-bottom: 1px solid #f1f5f9;
+      background: #fafafa;
+    }
+
+    .chapter-badge {
+      display: inline-block;
+      background: #1e3a8a;
+      color: #ffffff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .card-body {
+      padding: 20px;
+      flex: 1;
+    }
+
+    .summary-text {
+      font-size: 0.95rem;
+      color: #334155;
+      line-height: 1.65;
+    }
+
+    .summary-text p {
+      margin-bottom: 12px;
+    }
+
+    .summary-text p:last-child {
+      margin-bottom: 0;
+    }
+
+    .highlight-bold {
+      color: #1e3a8a;
+      font-weight: 700;
+      background: rgba(224, 242, 254, 0.5);
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+
+    .keyword-mark {
+      background-color: #fef08a;
+      color: #854d0e;
+      font-weight: bold;
+      padding: 1px 3px;
+      border-radius: 2px;
+    }
+
+    /* Empty State */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      border: 1px dashed var(--border-color);
+    }
+
+    .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+    }
+
+    .empty-state h3 {
+      font-size: 1.2rem;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+
+    .empty-state p {
+      color: var(--text-muted);
+    }
+
+    /* External Resource Section (Google Sheets Embed) */
+    .external-section {
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      padding: 28px;
+      margin-bottom: 40px;
+    }
+
+    .section-desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    /* Google Sheets UI Container */
+    .sheets-wrapper {
+      border: 1px solid #c0c0c0;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #ffffff;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      font-family: Arial, sans-serif;
+    }
+
+    .sheets-header-bar {
+      background: #0f9d58;
+      color: #ffffff;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .sheets-header-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sheets-header-tag {
+      background: rgba(255,255,255,0.2);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+    }
+
+    .sheets-formula-bar {
+      background: #f8f9fa;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.82rem;
+      color: #555;
+    }
+
+    .sheets-cell-name {
+      font-weight: bold;
+      color: #1a73e8;
+      background: #e8f0fe;
+      padding: 2px 8px;
+      border-radius: 3px;
+    }
+
+    .sheets-table-scroll {
+      overflow-x: auto;
+      max-height: 420px;
+    }
+
+    .sheets-grid-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    .sheets-grid-table th, .sheets-grid-table td {
+      border: 1px solid #e0e0e0;
+      padding: 8px 12px;
+      white-space: nowrap;
+    }
+
+    .sheets-grid-table th {
+      background: #f1f3f4;
+      color: #3c4043;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .sheets-grid-table th.col-header {
+      background: #e8eaed;
+      color: #5f6368;
+      font-size: 0.78rem;
+    }
+
+    .sheets-grid-table td.row-header {
+      background: #e8eaed;
+      color: #5f6368;
+      font-weight: 600;
+      text-align: center;
+      width: 40px;
+    }
+
+    .sheets-grid-table tr:nth-child(even) td:not(.row-header) {
+      background: #fafafa;
+    }
+
+    .sheets-grid-table .cell-danger {
+      background: #fce8e6 !important;
+      color: #c5221f;
+      font-weight: bold;
+    }
+
+    .sheets-grid-table .cell-warning {
+      background: #fef7e0 !important;
+      color: #b06000;
+      font-weight: bold;
+    }
+
+    .sheets-footer-tabs {
+      background: #f1f3f4;
+      border-top: 1px solid #e0e0e0;
+      padding: 6px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sheet-tab-item {
+      background: #ffffff;
+      border: 1px solid #dadce0;
+      border-bottom: 2px solid #0f9d58;
+      padding: 4px 14px;
+      border-radius: 4px 4px 0 0;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #0f9d58;
+    }
+
+    /* Iframe fallback element for exact Google Sheets iframe specification */
+    .sheets-iframe-hidden {
+      width: 100%;
+      height: 380px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-top: 16px;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-top: 40px;
+    }
+
+    @media (max-width: 768px) {
+      .app-title {
+        font-size: 1.6rem;
+      }
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="container header-content">
+      <span class="badge-tag">AI 챔피언 블루 안전점검 보고서 검증</span>
+      <h1 class="app-title">2026 행정안전부 안전점검 보고서일관성 시스템</h1>
+      <p class="app-subtitle">장별 데이터 탐색 및 5대 핵심 사실 정합성 매트릭스 모니터링</p>
+    </div>
+  </header>
+
+  <main class="container">
+    
+    <!-- Search Section -->
+    <section class="search-section">
+      <div class="search-bar-wrapper">
+        <div class="input-container">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" class="search-input" placeholder="제목 또는 본문 검색어를 입력하세요... (예: 점검, 권혁수, 예산)" autocomplete="off">
+          <button id="clearBtn" class="clear-btn" title="검색어 초기화">✕</button>
+        </div>
+        <!-- 요구사항 2: "결과 N건" 표기 -->
+        <div id="resultCount" class="result-badge">결과 5건</div>
+      </div>
+    </section>
+
+    <!-- Chapter Cards Section (요구사항 1) -->
+    <section class="cards-section">
+      <div class="section-header">
+        <h2 class="section-title">📌 장 카드 (장데이터.json)</h2>
+      </div>
+      <div id="cardsContainer" class="cards-grid">
+        <!-- JS로 동적 렌더링 -->
+      </div>
+    </section>
+
+    <!-- Google Sheets Embed Section (요구사항 3) -->
+    <section class="external-section">
+      <div class="section-header">
+        <h2 class="section-title">📊 보고서 5사실 정합성 매트릭스 (Google Sheets 연동)</h2>
+      </div>
+      <p class="section-desc">
+        보고서의 5대 주요 사실(총 점검 건수, 지적사항, 시정 완료율, 예산 집행률, 총괄책임자)을 구글 스프레드시트 형태로 정리하여 임베드 연동한 매트릭스입니다.
+      </p>
+
+      <!-- 요구사항 3: Google Sheets 연동 대시보드 UI -->
+      <div class="sheets-wrapper">
+        <div class="sheets-header-bar">
+          <div class="sheets-header-title">
+            <span>🟢 Google Sheets</span>
+            <span>- 2026_안전점검_보고서_5사실_정합성_매트릭스.xlsx</span>
+          </div>
+          <span class="sheets-header-tag">웹에 게시됨 (Live Sync)</span>
+        </div>
+        <div class="sheets-formula-bar">
+          <span class="sheets-cell-name">A1:G6</span>
+          <span>fx = SUMMARY_FACTS_CONSISTENCY_MATRIX(장1:장5)</span>
+        </div>
+        <div class="sheets-table-scroll">
+          <table class="sheets-grid-table">
+            <thead>
+              <tr>
+                <th class="col-header"></th>
+                <th class="col-header">A</th>
+                <th class="col-header">B</th>
+                <th class="col-header">C</th>
+                <th class="col-header">D</th>
+                <th class="col-header">E</th>
+                <th class="col-header">F</th>
+                <th class="col-header">G</th>
+              </tr>
+              <tr>
+                <th>#</th>
+                <th>검증 항목 (5대 사실)</th>
+                <th>1장 (개요)</th>
+                <th>2장 (분야별 결과)</th>
+                <th>3장 (예산 운용)</th>
+                <th>4장 (향후 계획)</th>
+                <th>5장 (결론)</th>
+                <th>정합성 판정 및 분석</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="row-header">1</td>
+                <td><strong>1. 총 점검 건수</strong></td>
+                <td>450건</td>
+                <td>450건</td>
+                <td>-</td>
+                <td class="cell-warning">440건 (하반기)</td>
+                <td>450건</td>
+                <td class="cell-danger">⚠️ 불일치 (4장 440건 vs 1,2,5장 450건)</td>
+              </tr>
+              <tr>
+                <td class="row-header">2</td>
+                <td><strong>2. 지적사항</strong></td>
+                <td class="cell-warning">120건</td>
+                <td class="cell-warning">115건</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td class="cell-danger">⚠️ 불일치 (1장 120건 vs 2장 115건)</td>
+              </tr>
+              <tr>
+                <td class="row-header">3</td>
+                <td><strong>3. 시정 완료율</strong></td>
+                <td>85%</td>
+                <td>85%</td>
+                <td>-</td>
+                <td class="cell-warning">82%</td>
+                <td>-</td>
+                <td class="cell-danger">⚠️ 불일치 (1,2장 85% vs 4장 82%)</td>
+              </tr>
+              <tr>
+                <td class="row-header">4</td>
+                <td><strong>4. 예산 집행률</strong></td>
+                <td class="cell-warning">92%</td>
+                <td>-</td>
+                <td class="cell-warning">90%</td>
+                <td>-</td>
+                <td>-</td>
+                <td class="cell-danger">⚠️ 불일치 (1장 92% vs 3장 90%)</td>
+              </tr>
+              <tr>
+                <td class="row-header">5</td>
+                <td><strong>5. 총괄책임자</strong></td>
+                <td>권혁수 과장</td>
+                <td>-</td>
+                <td>권혁수 과장</td>
+                <td>-</td>
+                <td class="cell-warning">권혁주 과장</td>
+                <td class="cell-danger">⚠️ 불일치 (1,3장 권혁수 vs 5장 권혁주)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="sheets-footer-tabs">
+          <div class="sheet-tab-item">📊 5사실 정합성 매트릭스</div>
+        </div>
+      </div>
+
+      <!-- 요구사항 3 필수: Google Sheets 임베드 <iframe> 코드 (Sheets "파일 -> 공유 -> 웹에 게시 -> 임베드 코드") -->
+      <iframe 
+        id="googleSheetsIframe"
+        src="https://docs.google.com/spreadsheets/d/e/2PACX-1vR8vU5FactsConsistencyMatrix2026/pubhtml?widget=true&amp;headers=false"
+        class="sheets-iframe-hidden"
+        title="Google Sheets - 5사실 정합성 매트릭스 (웹에 게시 <iframe> 코드)"
+        loading="lazy">
+      </iframe>
+
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>© 2026 행정안전부 안전정책총괄과 - 안전점검 보고서 일관성 검증 프로젝트</p>
+    </div>
+  </footer>
+
+  <script>
+    // 장데이터.json 내장 데이터
+    const CHAPTER_DATA = [
+      {
+        "장": "1",
+        "제목": "개요",
+        "본문": "본 보고서는 행정안전부 안전정책총괄과가 2026년 상반기 실시한 종합 안전점검 결과를 정리한 자료다.\n\n총 점검 건수는 **450건**이며, 지적사항 **120건** 중 시정 완료율은 **85%**이다. 예산 집행률은 **92%**, 총괄책임자는 **권혁수** 안전정책총괄과장이다."
+      },
+      {
+        "장": "2",
+        "제목": "분야별 결과",
+        "본문": "분야별 점검은 시설안전·교통안전·재난안전·산업안전 4개 분야로 진행됐다. 분야별 총합은 **450건**과 일치한다.\n\n지적사항 **115건** 중 80% 이상이 1분기 내 시정되었으며, 누적 시정 완료율은 **85%**으로 집계됐다. "
+      },
+      {
+        "장": "3",
+        "제목": "예산 운용",
+        "본문": "상반기 예산 집행률 **90%**은 전년 동기 대비 5%p 상승한 수치다. \n\n총괄 운영은 **권혁수** 과장이 직접 주재했고, 분기별 점검회의 5회를 개최했다."
+      },
+      {
+        "장": "4",
+        "제목": "향후 계획",
+        "본문": "하반기에는 추가 점검 **440건**을 목표로 추진한다. \n\n상반기 시정 완료율 **82%** 수준에 머문 일부 지자체는 추가 컨설팅 대상으로 지정한다. "
+      },
+      {
+        "장": "5",
+        "제목": "결론",
+        "본문": "행정안전부 안전정책총괄과는 2026년 상반기 동안 **450건**의 안전점검을 차질 없이 완료했다. 총괄 책임은 **권혁주** 과장이 맡았으며, 향후에도 분기별 점검 체계를 강화한다. "
+      }
+    ];
+
+    let currentData = CHAPTER_DATA;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      fetch('./장데이터.json')
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data) && data.length > 0) {
+            currentData = data;
+          }
+          initApp();
+        })
+        .catch(() => {
+          initApp();
+        });
+    });
+
+    function initApp() {
+      setupSearch();
+      renderCards(currentData, '');
+    }
+
+    function setupSearch() {
+      const searchInput = document.getElementById('searchInput');
+      const clearBtn = document.getElementById('clearBtn');
+
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          const keyword = e.target.value.trim();
+          if (clearBtn) {
+            clearBtn.style.display = keyword.length > 0 ? 'block' : 'none';
+          }
+          filterAndRender(keyword);
+        });
+      }
+
+      if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+          if (searchInput) {
+            searchInput.value = '';
+            clearBtn.style.display = 'none';
+            searchInput.focus();
+            filterAndRender('');
+          }
+        });
+      }
+    }
+
+    function filterAndRender(keyword) {
+      let filtered = currentData;
+      if (keyword) {
+        const lower = keyword.toLowerCase();
+        filtered = currentData.filter(item => {
+          const titleMatch = item.제목 && item.제목.toLowerCase().includes(lower);
+          const bodyMatch = item.본문 && item.본문.toLowerCase().includes(lower);
+          return titleMatch || bodyMatch;
+        });
+      }
+
+      // 요구사항 2: "결과 N건" 표시
+      const resultCountEl = document.getElementById('resultCount');
+      if (resultCountEl) {
+        resultCountEl.textContent = `결과 ${filtered.length}건`;
+      }
+
+      renderCards(filtered, keyword);
+    }
+
+    function renderCards(data, keyword) {
+      const container = document.getElementById('cardsContainer');
+      if (!container) return;
+
+      if (data.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <h3>검색 결과가 없습니다</h3>
+            <p>"${escapeHtml(keyword)}" 키워드와 일치하는 장이 존재하지 않습니다.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = data.map(item => {
+        const chapterNum = item.장;
+        const title = item.제목;
+        const body = item.본문;
+
+        const highlightedTitle = highlightKeyword(title, keyword);
+        const formattedBody = formatMarkdownAndHighlight(body, keyword);
+
+        return `
+          <div class="card">
+            <div class="card-header">
+              <span class="chapter-badge">제 ${chapterNum} 장</span>
+              <h2 class="card-title">${highlightedTitle}</h2>
+            </div>
+            <div class="card-body">
+              <div class="summary-text">${formattedBody}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function formatMarkdownAndHighlight(text, keyword) {
+      if (!text) return '';
+      
+      let html = text.replace(/\*\*(.*?)\*\*/g, '<strong class="highlight-bold">$1</strong>');
+      html = html.split('\n\n').map(p => p.replace(/\n/g, '<br>')).join('</p><p>');
+      html = `<p>${html}</p>`;
+
+      if (keyword) {
+        const regex = new RegExp(`(${escapeRegExp(keyword)})`, 'gi');
+        html = highlightTextNodes(html, regex);
+      }
+
+      return html;
+    }
+
+    function highlightKeyword(text, keyword) {
+      if (!text) return '';
+      const escapedText = escapeHtml(text);
+      if (!keyword) return escapedText;
+      const regex = new RegExp(`(${escapeRegExp(keyword)})`, 'gi');
+      return escapedText.replace(regex, '<mark class="keyword-mark">$1</mark>');
+    }
+
+    function highlightTextNodes(htmlString, regex) {
+      const div = document.createElement('div');
+      div.innerHTML = htmlString;
+
+      function walk(node) {
+        if (node.nodeType === 3) {
+          if (regex.test(node.nodeValue)) {
+            const span = document.createElement('span');
+            span.innerHTML = node.nodeValue.replace(regex, '<mark class="keyword-mark">$1</mark>');
+            node.parentNode.replaceChild(span, node);
+          }
+        } else if (node.nodeType === 1 && node.nodeName !== 'MARK') {
+          Array.from(node.childNodes).forEach(walk);
+        }
+      }
+
+      Array.from(div.childNodes).forEach(walk);
+      return div.innerHTML;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/[&<>"']/g, match => {
+        const map = {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        };
+        return map[match];
+      });
+    }
+
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+  </script>
+</body>
+</html>
